@@ -1,0 +1,41 @@
+name: 🐛 Bug Report
+description: Create a report to help us reproduce and fix a bug
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this issue! Please provide sufficient information so we can reproduce it.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: What OS, Node.js version, and browser are you using?
+      placeholder: "e.g., Windows 11 / macOS 14, Node v20.10.0, Chrome 125"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can someone reproduce this behavior?
+      placeholder: |
+        1. Run `npm run dev`
+        2. Navigate to '/dashboard'
+        3. Click on ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened? (Include error messages/stack trace if applicable)
+    validations:
+      required: true

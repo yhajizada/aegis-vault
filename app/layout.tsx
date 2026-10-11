@@ -3,23 +3,23 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Nexus — Modern Next.js Full-Stack SaaS Starter",
+  title: "AegisVault — Zero-Knowledge Digital Estate & In Case of Emergency (ICE) Vault",
   description:
-    "Production-grade, enterprise-ready full-stack SaaS boilerplate with Next.js 15, TypeScript, Tailwind CSS, Prisma, Docker, and GitHub Actions.",
+    "Client-side encrypted emergency safe for bank accounts, crypto seed phrases, policies, and digital inheritance. Protected by AES-256-GCM, Shamir's Secret Sharing, and Dead Man's Switch.",
   keywords: [
-    "Next.js 15",
-    "React 19",
-    "SaaS Starter",
-    "TypeScript",
-    "Tailwind CSS",
-    "Prisma",
-    "Docker",
-    "CI/CD",
+    "Digital Estate",
+    "In Case of Emergency",
+    "ICE Vault",
+    "Zero-Knowledge Encryption",
+    "Shamir Secret Sharing",
+    "Dead Mans Switch",
+    "ePoint Azerbaijan",
+    "Crypto Inheritance",
   ],
-  authors: [{ name: "Nexus Open Source Team" }],
+  authors: [{ name: "AegisVault Security Team" }],
   openGraph: {
-    title: "Nexus — Modern Next.js Full-Stack SaaS Starter",
-    description: "Launch your next SaaS in hours instead of months.",
+    title: "AegisVault — Zero-Knowledge Digital Estate & Emergency Safeguard",
+    description: "Protect your family and assets when unexpected emergencies happen.",
     type: "website",
   },
 };
@@ -30,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 antialiased selection:bg-indigo-500 selection:text-white">
+    <html lang="az" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 antialiased selection:bg-emerald-500 selection:text-white">
         <ThemeProvider>
           {children}
         </ThemeProvider>

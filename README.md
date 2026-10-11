@@ -1,219 +1,193 @@
-<div align="center">
+# 🛡️ AegisVault — Zero-Knowledge Digital Estate & "In Case of Emergency" (ICE) Vault
 
-# ⚡ Nexus — Enterprise Full-Stack SaaS Starter Kit
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React 19](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![Prisma ORM](https://img.shields.io/badge/Prisma-6.2-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
+[![Web Crypto API](https://img.shields.io/badge/Security-Zero--Knowledge-emerald?style=flat-square)](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
+[![Payment Gateway](https://img.shields.io/badge/Payments-ePoint.az-blue?style=flat-square)](https://epoint.az)
+[![Tests Passing](https://img.shields.io/badge/Vitest-Passing-brightgreen?style=flat-square&logo=vitest)](https://vitest.dev/)
 
-**Production-grade, highly modular boilerplate engineered for modern software founders, indie builders, and engineering teams.**
-
-[![CI Quality Pipeline](https://img.shields.io/badge/CI-Passing-22c55e?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15.1-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
-[![React 19](https://img.shields.io/badge/React-19.0-61dafb?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Prisma ORM](https://img.shields.io/badge/Prisma-6.2-2d3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-
-[Live Demo](#) · [Features](#-key-features) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Contributing](CONTRIBUTING.md)
-
-</div>
+> **AegisVault** is a privacy-first, zero-knowledge digital estate safeguard designed to prevent catastrophic loss of bank accounts, crypto seed phrases, vital documents, business credentials, and digital legacy when sudden emergencies or death occur.
 
 ---
 
-## 🚀 Overview
+## 💡 The Problem & The Solution
 
-**Nexus** is an opinionated, production-ready Full-Stack SaaS boilerplate designed to eliminate boilerplate fatigue. Built around Next.js 15 App Router, React 19, and Tailwind CSS, it packs authentic database schemas, developer API key workflows, interactive analytics telemetry, automated GitHub Actions CI/CD, and multi-stage container deployment out of the box.
+* **The Problem:** When individuals pass away or face medical emergencies, their family members are left in complete chaos—unable to locate private bank accounts, crypto cold storage keys (BIP-39 seeds), cloud drives, or business server credentials. Billions in assets are permanently lost every year.
+* **The Solution:** A zero-knowledge encrypted vault governed by a **Tiered Dead Man's Switch** and **Shamir's Secret Sharing (2-of-3 threshold)**. The user confirms "I am alive" periodically. If no response is received, pre-designated beneficiaries receive only their authorized modules without anyone having unilateral access.
 
 ---
 
-## 🏗️ Architecture
+## 🔒 Security & Trust Architecture
 
-```mermaid
-flowchart TD
-    Client["User Browser / Client"] -->|HTTPS / Next.js SSR| NextApp["Next.js 15 App Router"]
-    
-    subgraph Frontend["Frontend Layer"]
-        NextApp --> Landing["Landing (Hero, Features, Pricing)"]
-        NextApp --> Dashboard["Interactive Telemetry Dashboard"]
-        NextApp --> Settings["Settings & API Key Vault"]
-        NextApp --> Theme["Hydration-Safe Theme Provider"]
-    end
-
-    subgraph Backend["API & Server Layer"]
-        NextApp --> HealthAPI["/api/v1/health"]
-        NextApp --> AnalyticsAPI["/api/v1/analytics"]
-        NextApp --> ServerActions["Server Actions & Utilities"]
-    end
-
-    subgraph Data["Database & DevOps"]
-        ServerActions --> Prisma["Prisma ORM Client"]
-        Prisma --> SQLite["SQLite (Local Zero-Config)"]
-        Prisma -.-> Postgres["PostgreSQL (Docker / Production)"]
-        NextApp --> DockerMulti["Multi-Stage Docker Container"]
-        NextApp --> GHA["GitHub Actions CI/CD"]
-    end
+```
+                                  +---------------------------------------+
+                                  |     User Browser / Client Device     |
+                                  +---------------------------------------+
+                                                     |
+                    [ Master Password + Salt ] ----> | PBKDF2 (100,000 Iterations)
+                                                     v
+                                          [ Derived AES-256 Key ]
+                                                     |
+                     [ Sensitive Cleartext ] ------> | AES-GCM (12-byte random IV)
+                                                     v
+                                           [ Encrypted Ciphertext ]
+                                                     |
+                                   (Only Ciphertext sent over the wire)
+                                                     v
+                                  +---------------------------------------+
+                                  |    Zero-Knowledge Server & Database   |
+                                  |      (Cannot decrypt user records)    |
+                                  +---------------------------------------+
 ```
 
----
+### 1. Client-Side Zero-Knowledge Encryption (`lib/vault-crypto.ts`)
+* **PBKDF2 Key Derivation:** 100,000 SHA-256 iterations with cryptographic 16-byte random salt.
+* **AES-256-GCM:** 256-bit symmetric encryption with authenticated data tags and unique 12-byte IVs.
+* **Zero-Knowledge Guarantee:** The master password and unencrypted plaintext **never leave the user's browser**. The server database only stores opaque ciphertext blobs.
 
-## ✨ Key Features
-
-- ⚡ **Next.js 15 & React 19**: Modern App Router architecture with server components and streaming support.
-- 🎨 **Tailwind CSS & Dark Mode**: Flawless, flicker-free dark and light mode toggle with custom design tokens.
-- 📊 **Interactive Analytics Dashboard**: Live metrics for MRR, DAU/MAU, user activity feed, and monthly revenue visualizer.
-- 🗄️ **Prisma ORM (Zero-Config)**: Type-safe SQLite default for zero-friction local development, switchable to PostgreSQL with one variable.
-- 🔑 **API Key & Security Vault**: Developer API key generator, clipboard utilities, and 2FA policy toggles.
-- 🧪 **Vitest & React Testing Library**: Pre-configured unit and component test suites with instant execution.
-- 🐳 **Docker & Docker Compose**: Optimized multi-stage production Dockerfile and container orchestration.
-- 🤖 **GitHub Actions CI/CD**: Automatic linting, typechecking, Vitest validation, and production build checks on every push and PR.
-- 📜 **Full Community Governance**: Issue templates, PR templates, Code of Conduct, Security policy, and MIT license.
-
----
-
-## 🗂️ Project Structure
-
-```text
-nexus-saas-template/
-├── .github/
-│   ├── workflows/
-│   │   ├── ci.yml               # Automated Lint, Test & Build pipeline
-│   │   └── codeql.yml           # CodeQL Security static analysis
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug_report.yml       # Interactive bug report issue form
-│   │   └── feature_request.yml  # Feature proposal template
-│   └── PULL_REQUEST_TEMPLATE.md # Standard PR review checklist
-├── app/
-│   ├── api/v1/
-│   │   ├── analytics/route.ts   # Platform analytics telemetry endpoint
-│   │   └── health/route.ts      # Automated health check route
-│   ├── dashboard/
-│   │   ├── settings/page.tsx    # Organization settings & API keys
-│   │   ├── layout.tsx           # Dashboard shell with sidebar
-│   │   └── page.tsx             # Interactive metrics & activity overview
-│   ├── globals.css              # Global tokens & theme utilities
-│   ├── layout.tsx               # Root HTML wrapper with theme provider
-│   └── page.tsx                 # Modern conversion-focused landing page
-├── components/
-│   ├── dashboard-sidebar.tsx    # Responsive side navigation
-│   ├── features.tsx             # Capabilities breakdown grid
-│   ├── footer.tsx               # Footer with live status indicator
-│   ├── hero.tsx                 # High-impact hero section
-│   ├── metric-card.tsx          # Stat card with delta trend badge
-│   ├── navbar.tsx               # Navigation bar with dark mode switch
-│   ├── pricing.tsx              # Annual/monthly tiered pricing table
-│   └── theme-provider.tsx       # Dark & light theme context
-├── lib/
-│   ├── constants.ts             # Pricing plans, metrics & demo constants
-│   ├── db.ts                    # Prisma Client singleton
-│   └── utils.ts                 # Formatting, class merging, and key generation
-├── prisma/
-│   ├── schema.prisma            # Models: User, Organization, Subscription, AuditLog
-│   └── seed.js                  # Database demo seeder
-├── tests/
-│   ├── setup.ts                 # Vitest DOM extensions setup
-│   ├── utils.test.ts            # Unit tests for core utilities
-│   └── metric-card.test.tsx     # React component test suite
-├── Dockerfile                   # Multi-stage production container
-├── docker-compose.yml           # App + PostgreSQL container setup
-├── package.json                 # Project dependencies & npm scripts
-├── tsconfig.json                # TypeScript strict configuration
-└── vitest.config.ts             # Vitest test runner configuration
-```
+### 2. Shamir's Secret Sharing (2-of-3 Threshold)
+* Implemented over Galois Field $\text{GF}(2^8)$ with generator polynomial $0\times 11\text{d}$.
+* The emergency recovery key is split into 3 mathematical shares:
+  * **Share #1:** Primary Beneficiary (e.g. Spouse)
+  * **Share #2:** Secondary Guardian / CTO (e.g. Business Partner)
+  * **Share #3:** Emergency Escrow / Legal Trustee
+* Any **2 of the 3 shares** can mathematically reconstruct the key via Lagrange interpolation; 1 share alone reveals zero information (information-theoretic security).
 
 ---
 
-## 🚀 Quick Start
+## ⏱️ Tiered "Dead Man's Switch" Protocol
 
-### 1. Prerequisites
-- **Node.js**: v18.18+ or v20+ (tested on Node 20 & 24)
-- **npm**: v9+ or v11+
+1. **Active State (Green):** User clicks *"I AM ALIVE"* within their interval (e.g., 60 days). The timer safely extends.
+2. **Tier 1 — Grace Period (Days 1–7 overdue):** Automated SMS and email ping notifications are sent to the user.
+3. **Tier 2 — Urgent Escalation (Days 8–14 overdue):** High-priority push notifications and emergency automated calls.
+4. **Tier 3 — Guardian Verification (Days 15–21 overdue):** Designated primary contact receives a verification request: *"User has not responded. Please confirm emergency status."*
+5. **Triggered Release:** Once the grace countdown expires, beneficiaries gain time-locked zero-knowledge decryption access.
 
-### 2. Clone and Install
+---
 
+## 🗂️ Granular Modular Vaults
+
+| Module | Use Case & Secrets Stored | Typical Designated Guardian |
+| :--- | :--- | :--- |
+| **Financial & Crypto** | Bank accounts, brokerages, Ledger/Trezor BIP-39 seed phrases, life insurance | Spouse / Heirs |
+| **Digital Legacy** | Farewell letters, personal memorial video links, cloud photo albums | Children / Family |
+| **Business & IT** | Cloudflare DNS, AWS root credentials, GitHub recovery codes, domain registrars | Co-founder / CTO |
+
+---
+
+## 💳 ePoint (epoint.az) Payment Gateway Integration
+
+AegisVault includes built-in integration with **ePoint.az** to process annual subscriptions via **Visa, Mastercard, Apple Pay, and Google Pay**:
+
+* **Currencies Supported:** Both **USD ($)** and **AZN (₼)** with real-time toggle.
+* **Security:** Base64 payload encoding with SHA1 private key signature generation.
+* **Subscription Tiers:**
+  * **Solo Guardian:** $39 / year (₼69 AZN)
+  * **Family Estate Pro:** $69 / year (₼117 AZN) — *Recommended*
+  * **Crypto & Wealth Elite:** $129 / year (₼219 AZN)
+* **Sandbox Simulation:** Runs in automatic test sandbox mode when live credentials are not set, providing instant checkout testing.
+
+---
+
+## 🚀 Quickstart & Installation
+
+### Prerequisites
+* **Node.js:** v18.x or v20+ (tested on Node 24)
+* **npm:** v9+
+
+### 1. Clone the repository
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/nexus-saas-template.git
-cd nexus-saas-template
+git clone https://github.com/YOUR_USERNAME/aegis-vault.git
+cd aegis-vault
+```
 
-# Install dependencies
+### 2. Install dependencies
+```bash
 npm install
 ```
 
-### 3. Environment Configuration
-
+### 3. Configure Environment Variables
+Copy `.env.example` to `.env`:
 ```bash
-# Copy example environment configuration
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-### 4. Initialize Database
+Edit `.env` with your settings:
+```env
+DATABASE_URL="file:./dev.db"
+AUTH_SECRET="your-secret-key-min-32-chars-long"
+NEXT_PUBLIC_APP_NAME="AegisVault"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-By default, Nexus uses SQLite for instant local development with zero external dependencies required:
+# ePoint.az Merchant Credentials (epoint.az/merchant)
+EPOINT_PUBLIC_KEY="your_epoint_public_key"
+EPOINT_PRIVATE_KEY="your_epoint_private_key"
+```
 
+### 4. Initialize Database & Seed Demo Data
 ```bash
-# Synchronize Prisma schema with local database
-npm run db:push
-
-# (Optional) Populate with realistic demo data
+npx prisma db push
 npm run db:seed
 ```
 
-### 5. Launch Development Server
+### 5. Run Cryptographic Tests
+```bash
+npm run test
+```
+*Runs Vitest suite verifying Galois Field $\text{GF}(256)$ Lagrange interpolation and AES-256-GCM.*
 
+### 6. Start the Development Server
 ```bash
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🧪 Testing & Code Quality
+## 📁 Project Structure
 
-Run tests and static validation tools with:
-
-```bash
-# Run unit & component tests via Vitest
-npm run test
-
-# Run Vitest in interactive watch mode
-npm run test:watch
-
-# Run ESLint validation
-npm run lint
-
-# Build production bundle
-npm run build
+```
+ice-vault/
+├── app/
+│   ├── api/v1/
+│   │   ├── emergency/[token]/   # Beneficiary token verification API
+│   │   ├── guardians/           # Beneficiaries & Shamir shares API
+│   │   ├── payment/epoint/      # ePoint create checkout & callback webhooks
+│   │   ├── switch/              # Heartbeat & escalation simulation API
+│   │   └── vault/               # Zero-Knowledge encrypted CRUD API
+│   ├── dashboard/
+│   │   ├── billing/             # ePoint subscription & invoices page
+│   │   ├── settings/            # Security & 2FA preferences
+│   │   └── page.tsx             # Main Command Center & Dead Man's Switch
+│   ├── emergency-access/        # Beneficiary Emergency Portal
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx                 # High-converting cybersecurity landing page
+├── components/
+│   ├── dashboard-sidebar.tsx
+│   ├── features.tsx             # 3 Architecture pillars showcase
+│   ├── footer.tsx
+│   ├── hero.tsx                 # Live browser-based Zero-Knowledge simulator
+│   ├── navbar.tsx
+│   ├── pricing.tsx              # ePoint subscription pricing cards
+│   └── theme-provider.tsx
+├── lib/
+│   ├── constants.ts             # Pricing tiers, categories
+│   ├── db.ts                    # Prisma Client instance
+│   ├── epoint.ts                # ePoint.az API & signature generator
+│   └── vault-crypto.ts          # Web Crypto AES-GCM + Shamir's SSS
+├── prisma/
+│   ├── schema.prisma            # VaultItems, Guardians, Subscriptions
+│   └── seed.js                  # Seed script with realistic encrypted records
+└── tests/
+    └── vault-crypto.test.ts     # Cryptography unit tests
 ```
 
 ---
 
-## 🐳 Running with Docker
+## 📜 License
 
-Deploy locally with PostgreSQL using Docker Compose:
-
-```bash
-# Build and run containers
-docker-compose up --build
-
-# Run detached in background
-docker-compose up -d
-```
-
----
-
-## 🤝 Contributing
-
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-Please review our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
-
----
-
-<div align="center">
-  <sub>Built with ❤️ for founders, developers, and open source creators.</sub>
-</div>
+This project is licensed under the [MIT License](LICENSE).

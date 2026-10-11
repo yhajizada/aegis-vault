@@ -1,8 +1,8 @@
 {
-  "name": "nexus-saas-template",
+  "name": "aegis-vault",
   "version": "1.0.0",
   "private": true,
-  "description": "Enterprise-ready full-stack Next.js SaaS starter template with TypeScript, Tailwind CSS, Prisma, Authentication, Docker, and CI/CD.",
+  "description": "Zero-Knowledge Digital Estate & In Case of Emergency (ICE) Vault SaaS with Shamir's Secret Sharing (2-of-3), Tiered Dead Man's Switch, and ePoint payment gateway integration.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

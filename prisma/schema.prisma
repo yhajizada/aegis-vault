@@ -8,53 +8,88 @@ generator client {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String         @unique
-  emailVerified DateTime?
-  image         String?
-  role          String         @default("USER") // USER, ADMIN, OWNER
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                         String         @id @default(cuid())
+  name                       String?
+  email                      String         @unique
+  emailVerified              DateTime?
+  image                      String?
+  role                       String         @default("USER") // USER, ADMIN
+  createdAt                  DateTime       @default(now())
+  updatedAt                  DateTime       @updatedAt
+
+  // Dead Man's Switch Settings
+  deadManSwitchFrequencyDays Int            @default(60) // 30, 60, 90, 180
+  lastCheckInAt              DateTime       @default(now())
+  nextCheckInDue             DateTime       @default(now())
+  switchStatus               String         @default("ACTIVE") // ACTIVE, GRACE_TIER_1, URGENT_TIER_2, ESCALATED_TIER_3, TRIGGERED
   
-  organizationId String?
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  subscriptions  Subscription[]
-  auditLogs      AuditLog[]
+  // Shamir's Secret Sharing Settings
+  shamirThreshold            Int            @default(2)
+  shamirTotalShares          Int            @default(3)
+  keySaltHex                 String?
+
+  vaultItems                 VaultItem[]
+  guardians                  Guardian[]
+  checkInLogs                CheckInLog[]
+  subscriptions              Subscription[]
 
   @@index([email])
 }
 
-model Organization {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  plan        String   @default("FREE") // FREE, PRO, ENTERPRISE
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  members     User[]
+model VaultItem {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category         String   // FINANCIAL, LEGACY, BUSINESS_IT
+  title            String
+  description      String?
+  encryptedPayload String   // Base64 encrypted JSON { ciphertext, iv, salt }
+  hint             String?  // Optional non-sensitive hint
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId, category])
+}
+
+model Guardian {
+  id                  String   @id @default(cuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  email               String
+  phone               String?
+  relationship        String   // SPOUSE, CHILD, LAWYER, BUSINESS_PARTNER, TRUSTEE
+  allowedCategories   String   // Comma separated e.g. "FINANCIAL,LEGACY"
+  status              String   @default("VERIFIED") // PENDING, VERIFIED, EMERGENCY_ACTIVE
+  shamirShareId       Int?     // 1, 2, 3
+  publicShareHint     String?  // Masked share identifier
+  emergencyAccessToken String  @unique @default(cuid())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([emergencyAccessToken])
+}
+
+model CheckInLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkInAt DateTime @default(now())
+  method    String   @default("PORTAL_CLICK") // PORTAL_CLICK, SECURE_LINK, SMS_RESPONSE
+  ipAddress String?
 }
 
 model Subscription {
   id                   String   @id @default(cuid())
   userId               String
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 String   @default("FAMILY_PRO") // SOLO_GUARDIAN ($39), FAMILY_PRO ($69), CRYPTO_ELITE ($129)
   stripeCustomerId     String?  @unique
   stripeSubscriptionId String?  @unique
-  status               String   // ACTIVE, CANCELED, PAST_DUE
-  priceId              String?
+  status               String   @default("ACTIVE") // ACTIVE, CANCELED, PAST_DUE
+  priceAnnual          Int      @default(69)
   currentPeriodEnd     DateTime
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
-}
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action    String
-  resource  String
-  ipAddress String?
-  createdAt DateTime @default(now())
 }
